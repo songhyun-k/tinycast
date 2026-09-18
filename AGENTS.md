@@ -53,6 +53,7 @@ system-wide chord, and HIToolbox's TIS APIs remain the public input-source mecha
 | add or restyle any view | [ui.md](docs/ui.md) |
 | touch one feature's internals | [features/](docs/features/) — each opens with its invariants |
 | package or ship a build | [release.md](docs/release.md) |
+| sync this fork with upstream, or build it for daily use | [fork.md](docs/fork.md) |
 
 ## Non-negotiables
 
