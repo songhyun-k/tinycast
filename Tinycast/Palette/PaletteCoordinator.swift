@@ -51,8 +51,11 @@ final class PaletteCoordinator {
         windowController.isVisible && palette.mode == mode
     }
 
+    /// The global hotkey is a plain toggle: a visible palette hides, whatever screen is up. The
+    /// summon after it restores that screen until Pop to Root Search expires, so the pair reads as
+    /// minimise and restore rather than a reset. ⌘⎋ is still the way to the root search from depth.
     func togglePalette() {
-        if isShowing(.launcher) {
+        if isVisible {
             hidePalette()
         } else {
             showPalette(mode: .launcher, restoreAnyMode: true)

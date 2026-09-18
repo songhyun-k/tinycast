@@ -53,6 +53,13 @@ The command palette is a borderless floating `NSPanel` hosting SwiftUI; see
 Everything resolved "once per summon" is resolved there deliberately, not per render. `AppCore` holds
 only the closure wiring; the behaviour is `PaletteCoordinator`'s.
 
+**The global hotkey is a plain toggle, and the screen it is over does not qualify it**: a visible
+palette hides, whether it is on the root search or in the middle of a chat. The summon after it
+carries `restoreAnyMode`, so the screen comes back until Pop to Root Search expires and the pair
+reads as minimise and restore. A mode command's own hotkey is the narrower toggle —
+`togglePalette(mode:)` closes only what it opened (see [hotkeys.md](hotkeys.md)) — and ⌘⎋ remains the
+way to the root search from depth, so nothing lost a route by the hotkey giving one up.
+
 ## Screens
 
 `PaletteState` (mode / query / selection / `focusToken`) is the bridge between the panel and the app.
@@ -104,8 +111,8 @@ becomes the step back; a hidden one is being *summoned*, so the new screen is a 
 behind it. Every mode command and every global hotkey funnels through `showPalette`, which calls it —
 so typing "Clipboard History" at the root and pressing ↵ leaves a step back to the search that found
 it, while the Clipboard History hotkey does not. **The launcher is the exception, because it is the
-root** — ⌘Space over an open clipboard opens the root search with nothing behind it, rather than
-stacking the launcher over the screen it replaced. Nothing per-feature encodes this.
+root** — a launcher summon over an open screen opens the root search with nothing behind it, rather
+than stacking the launcher over the screen it replaced. Nothing per-feature encodes this.
 
 `PaletteState` holds the screens below `mode` as `[PaletteFrame]` — mode, query and selection, enough
 that returning looks like never having left — and offers four motions over it:
