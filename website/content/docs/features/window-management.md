@@ -78,6 +78,10 @@ again just puts the window in the same place. The two modes change that:
 The cycle starts over when you move the window yourself (by more than 2 points), use a different
 command, move to a different display, or wait a while.
 
+**Maximize is a toggle.** Press it once and the window fills the screen; press it again and the
+window goes back to the size and place it had. Move the window yourself in between and the next press
+maximizes again, from where it now sits.
+
 **Restore Window goes back one step, not through a history.** Left Half → Maximize → Top Right
 Quarter → Restore Window puts the window back where it **started**, not where it was last.
 

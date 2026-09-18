@@ -119,6 +119,10 @@ enum WindowCommandCatalog {
     /// Nudges reposition without ever touching the size.
     static let movesOnly: Set<WindowCommand.ID> = [.moveLeft, .moveRight, .moveUp, .moveDown]
 
+    /// Commands whose repeat press is the way back: out, then back to the Restore point.
+    /// A two-step chain of its own, independent of `WindowCycle` — that setting is the halves'.
+    static let togglesOnRepeat: Set<WindowCommand.ID> = [.maximize]
+
     private static func name(for id: WindowCommand.ID) -> String {
         switch id {
         case .leftHalf: return "Left Half"

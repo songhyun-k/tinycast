@@ -87,6 +87,34 @@ struct WindowCommandTests {
         return landed
     }
 
+    /// Presses a toggle like `WindowMover`, feeding the memory's restore point back in each time.
+    static func togglePresses(
+        _ command: WindowCommand.ID, _ count: Int, from window: CGRect,
+        on list: [WindowPlacementEngine.Screen]
+    ) -> [CGRect] {
+        let clock = Date(timeIntervalSince1970: 1_000_000)
+        var memory = WindowActionMemory<Int>()
+        var current = window
+        var landed: [CGRect] = []
+        for _ in 0..<count {
+            let host = WindowPlacementEngine.screen(containing: current, in: list)!
+            let decision = memory.decide(
+                key: 1, command: command, currentFrame: current, currentScreenID: host.id,
+                cycleLength: length(command, .off, list), now: clock)
+            let placement = WindowPlacementEngine.placement(
+                for: WindowPlacementEngine.Input(
+                    command: command, windowFrame: current, screens: list, step: decision.step,
+                    originScreenID: decision.originScreenID,
+                    restoreFrame: decision.canRestore ? decision.restoreFrame : nil))!
+            memory.commit(
+                key: 1, command: command, decision: decision, appliedFrame: placement.frame,
+                screenID: placement.screenID, now: clock)
+            current = placement.frame
+            landed.append(placement.frame)
+        }
+        return landed
+    }
+
     static func length(
         _ command: WindowCommand.ID, _ cycle: WindowCycle,
         _ list: [WindowPlacementEngine.Screen] = [mainScreen]
@@ -107,6 +135,7 @@ struct WindowCommandTests {
         testDisplays()
         testDisplayCycle()
         testRestore()
+        testMaximizeToggle()
         testMemory()
         testFuzz()
 
@@ -315,7 +344,7 @@ struct WindowCommandTests {
                 "non-cycling commands ignore step \(step)")
             expectRect(
                 frame(.maximize, step: step, cycle: .sizes)!, frame(.maximize)!,
-                "maximize ignores step \(step)")
+                "maximize with no restore point ignores step \(step)")
             expectRect(
                 frame(.leftHalf, step: step)!, frame(.leftHalf)!,
                 "cycling switched off ignores step \(step)")
@@ -709,7 +738,7 @@ struct WindowCommandTests {
         expect(length(.leftHalf, .off, both) == 1, "cycling off is a length of one")
         expect(length(.leftHalf, .sizes, both) == 3, "the size cycle is three steps")
         expect(length(.leftHalf, .displays, both) == 4, "two displays give four slots")
-        expect(length(.maximize, .displays, both) == 1, "a non-cycling command never cycles")
+        expect(length(.center, .displays, both) == 1, "a non-cycling command never cycles")
         expect(
             length(.leftHalf, .displays) == 1,
             "one display makes the display leg a no-op")
@@ -801,12 +830,13 @@ struct WindowCommandTests {
             frame(.leftHalf, on: narrow, gap: 100)!,
             "the destination display sanitises the gap")
 
-        // No mode ever gives a non-cycling command a chain to walk.
+        // No mode ever gives a plain command a chain to walk, and no mode resizes a toggle's.
         for command in WindowCommand.ID.allCases
         where !WindowCommandCatalog.cyclesOnRepeat.contains(command) {
+            let expected = WindowCommandCatalog.togglesOnRepeat.contains(command) ? 2 : 1
             for cycle in WindowCycle.allCases {
                 expect(
-                    length(command, cycle, both) == 1,
+                    length(command, cycle, both) == expected,
                     "\(command.rawValue) has no cycle to walk under \(cycle.rawValue)")
             }
         }
@@ -830,6 +860,32 @@ struct WindowCommandTests {
         expect(
             recovered.midX == mainScreen.visibleFrame.midX,
             "a stranded restore is re-centred horizontally")
+    }
+
+    // MARK: - The maximize toggle
+
+    static func testMaximizeToggle() {
+        expect(length(.maximize, .off) == 2, "a toggle is two steps with cycling off")
+        expect(length(.maximize, .sizes) == 2, "the cycling setting never reaches a toggle")
+
+        let window = CGRect(x: 100, y: 100, width: 600, height: 400)
+        let landed = togglePresses(.maximize, 4, from: window, on: [mainScreen])
+        expectRect(landed[0], mainScreen.visibleFrame, "the first press maximizes")
+        expectRect(landed[1], window, "the second press puts the window back")
+        expectRect(landed[2], mainScreen.visibleFrame, "the third press maximizes again")
+        expectRect(landed[3], window, "the restore point survives a round trip")
+
+        // Rule 1 of `decide`: nothing to go back to, so the odd step can only maximize.
+        expectRect(
+            frame(.maximize, step: 1)!, mainScreen.visibleFrame,
+            "a toggle with no restore point stays maximized")
+
+        // The way back is Restore's own answer, stranded restore point and all.
+        let stranded = CGRect(x: 5000, y: 5000, width: 300, height: 200)
+        expectRect(
+            frame(.maximize, step: 1, restore: stranded)!,
+            frame(.restore, restore: stranded)!,
+            "a stranded restore point resolves exactly as Restore resolves it")
     }
 
     // MARK: - Action memory
@@ -934,19 +990,20 @@ struct WindowCommandTests {
             expect(pinnedDecision.step == 0, "cycling off pins every repeat to step 0")
         }
 
-        // A non-cycling command never advances even with cycling on.
+        // A non-cycling command never advances even with cycling on. Not Maximize: it toggles,
+        // and a toggle's whole point is that the second press reads as step 1.
         var nonCycling = WindowActionMemory<Int>()
-        let maximized = mainScreen.visibleFrame
+        let centred = frame(.center)!
         var nonDecision = nonCycling.decide(
-            key: 1, command: .maximize, currentFrame: original, currentScreenID: 1,
-            cycleLength: length(.maximize, .sizes), now: clock)
+            key: 1, command: .center, currentFrame: original, currentScreenID: 1,
+            cycleLength: length(.center, .sizes), now: clock)
         for _ in 0..<5 {
             nonCycling.commit(
-                key: 1, command: .maximize, decision: nonDecision, appliedFrame: maximized,
+                key: 1, command: .center, decision: nonDecision, appliedFrame: centred,
                 screenID: 1, now: clock)
             nonDecision = nonCycling.decide(
-                key: 1, command: .maximize, currentFrame: maximized, currentScreenID: 1,
-                cycleLength: length(.maximize, .sizes), now: clock)
+                key: 1, command: .center, currentFrame: centred, currentScreenID: 1,
+                cycleLength: length(.center, .sizes), now: clock)
             expect(nonDecision.step == 0, "a non-cycling command never advances")
         }
 

@@ -54,7 +54,7 @@ enum WindowPlacementEngine {
         var cycle: WindowCycle
         /// The display the chain started on; `nil`, or one since unplugged, means the host.
         var originScreenID: Int?
-        /// Read only by `.restore`.
+        /// Read by `.restore`, and by a `togglesOnRepeat` command on the press that goes back.
         var restoreFrame: CGRect?
         /// The tile that last placed this window, so a display move re-derives rather than scales.
         var lastTileCommand: WindowCommand.ID?
@@ -120,6 +120,16 @@ enum WindowPlacementEngine {
         let step = wrapped(
             input.step,
             into: cycleLength(for: input.command, screens: input.screens, cycle: input.cycle))
+
+        // A toggle's odd press is the way back, and it resolves exactly as Restore does — including
+        // a stranded restore point coming back centred. Falling through covers the one case
+        // `restorePlacement` refuses, no restore point at all, which `decide` cannot pair with an
+        // odd step: a first sight is always step 0. So the fall-through is a guard, not a path.
+        if step == 1, WindowCommandCatalog.togglesOnRepeat.contains(input.command),
+            let restored = restorePlacement(input)
+        {
+            return restored
+        }
 
         if let half = Half.of(input.command) {
             return halfPlacement(input, half: half, host: host, step: step)
@@ -331,6 +341,8 @@ enum WindowPlacementEngine {
     static func cycleLength(
         for command: WindowCommand.ID, screens: [Screen], cycle: WindowCycle
     ) -> Int {
+        // A toggle carries its own length: `cycle` is the four halves' setting and never gates it.
+        if WindowCommandCatalog.togglesOnRepeat.contains(command) { return 2 }
         guard WindowCommandCatalog.command(id: command)?.cyclesOnRepeat == true else { return 1 }
         switch cycle {
         case .off: return 1

@@ -174,6 +174,15 @@ Two details carry their weight:
 Rule 1 also delivers the "works for windows Tinycast never moved" requirement: the capture happens in
 `WindowMover.perform` before a single write.
 
+**Maximize toggles**, and it is the one command that does. `WindowCommandCatalog.togglesOnRepeat`
+names it, `cycleLength` answers 2 for anything in that set *before* it consults `cyclesOnRepeat`, and
+`placement` sends step 1 through `restorePlacement` — so the way back is Restore's own answer,
+stranded restore point and all, rather than a second opinion about where the window was. The chain is
+the memory's, so every rule above already holds: drag the window yourself and rule 2 refreshes the
+restore point and puts the next press back at step 0, which is what makes the toggle feel like undo
+rather than like a stale bookmark. `WindowCycle` never gates it — that setting is the halves'
+question about what a repeat *means*, and a toggle has already answered it.
+
 **Cycling covers the four halves only**, and `WindowCycle` picks one of three modes, `.off` by default
 so a repeat press stays idempotent unless asked otherwise:
 
