@@ -16,7 +16,7 @@ struct DialogChip: View {
 
     var body: some View {
         Button(action: onTap) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .font(metrics.typography.rowTrailing)
                 .foregroundStyle(selected ? Theme.Colors.textPrimary : Theme.Colors.textSecondary)
                 .padding(.horizontal, metrics.spacing.lg)

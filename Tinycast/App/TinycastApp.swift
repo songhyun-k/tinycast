@@ -16,14 +16,14 @@ struct TinycastApp: App {
     /// Two independent items: one preference each, no state either can read off the other.
     var body: some Scene {
         MenuBarExtra(isInserted: $showInMenuBar) {
-            MenuBarMenu(appName: appName)
+            MenuBarMenu(appName: appName).appLocale(AppCore.shared.settings)
         } label: {
             MenuBarLabel(appName: appName)
         }
         .commands { menuBarCommands }
 
         MenuBarExtra(isInserted: calendarMenuBarInsertion) {
-            CalendarMenuBarMenu()
+            CalendarMenuBarMenu().appLocale(AppCore.shared.settings)
         } label: {
             CalendarMenuBarLabel(appName: appName)
         }

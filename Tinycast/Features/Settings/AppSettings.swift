@@ -215,6 +215,11 @@ final class AppSettings {
         didSet { defaults.set(calcNumberStyle.rawValue, forKey: Key.calcNumberStyle.rawValue) }
     }
 
+    /// Follow macOS, or pin Tinycast to one language. Read through `View.appLocale(_:)`.
+    var language: AppLanguage {
+        didSet { defaults.set(language.rawValue, forKey: Key.language.rawValue) }
+    }
+
     /// Scales the palette and its floating siblings only. Read through `InterfaceSize.metrics`.
     var interfaceSize: InterfaceSize {
         didSet { defaults.set(interfaceSize.rawValue, forKey: Key.interfaceSize.rawValue) }
@@ -588,6 +593,8 @@ final class AppSettings {
         calcNumberStyle =
             defaults.string(forKey: Key.calcNumberStyle.rawValue).flatMap(CalcNumberStyle.init)
             ?? .system
+        language =
+            defaults.string(forKey: Key.language.rawValue).flatMap(AppLanguage.init) ?? .system
         interfaceSize =
             defaults.string(forKey: Key.interfaceSize.rawValue).flatMap(InterfaceSize.init)
             ?? .standard

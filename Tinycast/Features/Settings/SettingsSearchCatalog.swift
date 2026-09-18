@@ -137,6 +137,9 @@ enum SettingsSearchCatalog {
             .generalAppearance, "Theme",
             keywords: ["dark", "light", "mode", "appearance"]),
         .init(
+            .generalAppearance, "Language",
+            keywords: ["locale", "korean", "한국어", "english", "translation", "localization"]),
+        .init(
             .generalAppearance, "Interface size",
             keywords: ["text size", "font size", "scale", "zoom", "bigger", "larger", "legible"]),
         .init(

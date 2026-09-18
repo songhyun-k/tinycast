@@ -295,6 +295,7 @@ final class QuickActionCoordinator {
         panels.present(
             state,
             metrics: settings.interfaceSize.metrics,
+            locale: settings.language.locale,
             languages: offeredLanguages,
             onRetranslate: { [weak self] language in
                 state.targetLanguage = language

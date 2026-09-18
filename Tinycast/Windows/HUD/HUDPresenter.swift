@@ -13,11 +13,16 @@ final class HUDPresenter {
     private let anchor: Anchor
     private let dwell: TimeInterval
     private let screen: () -> NSScreen?
+    private let settings: AppSettings
     private var panel: HUDPanel?
     private var dismissal: Task<Void, Never>?
 
-    init(anchor: Anchor, dwell: TimeInterval, screen: @escaping () -> NSScreen?) {
+    init(
+        anchor: Anchor, dwell: TimeInterval, settings: AppSettings,
+        screen: @escaping () -> NSScreen?
+    ) {
         self.anchor = anchor
+        self.settings = settings
         self.dwell = dwell
         self.screen = screen
     }
@@ -25,7 +30,7 @@ final class HUDPresenter {
     /// A nil `size` lets SwiftUI measure; progress has no dwell, so it waits to be replaced.
     func show(_ view: some View, size: CGSize? = nil, dwells: Bool = true) {
         let panel = panel ?? make()
-        let host = NSHostingView(rootView: view)
+        let host = NSHostingView(rootView: view.appLocale(settings))
         // Never size from `host.frame` after attaching: AppKit resets it to the content rect.
         let content = size ?? host.fittingSize
         host.setFrameSize(content)

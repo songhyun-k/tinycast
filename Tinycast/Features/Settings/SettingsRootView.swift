@@ -16,7 +16,7 @@ struct SettingsRootView: View {
             SettingsDetailView()
                 .frame(minWidth: Theme.Size.settingsDetailMinimum)
         }
-        .navigationTitle(navigation.tab.title)
+        .navigationTitle(LocalizedStringKey(navigation.tab.title))
         .toolbar {
             ToolbarItemGroup(placement: .navigation) {
                 Button("Back", systemImage: "chevron.backward") { navigation.goBack() }

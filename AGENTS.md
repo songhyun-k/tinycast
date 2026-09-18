@@ -54,6 +54,7 @@ system-wide chord, and HIToolbox's TIS APIs remain the public input-source mecha
 | touch one feature's internals | [features/](docs/features/) — each opens with its invariants |
 | package or ship a build | [release.md](docs/release.md) |
 | sync this fork with upstream, or build it for daily use | [fork.md](docs/fork.md) |
+| add or change any user-visible string | [localization.md](docs/localization.md) |
 
 ## Non-negotiables
 

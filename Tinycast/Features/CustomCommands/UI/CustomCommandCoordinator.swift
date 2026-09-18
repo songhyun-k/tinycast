@@ -17,7 +17,7 @@ final class CustomCommandCoordinator {
     private unowned let core: AppCore
     /// Built on first use; the window inside it waits for a run that actually shows output.
     private lazy var outputPresenter = CommandOutputPresenter(
-        activation: activationPolicy,
+        activation: activationPolicy, settings: settings,
         rerun: { [unowned self] in self.rerunOutput(id: $0) },
         stop: { [unowned self] in self.stopOutputRun(id: $0) },
         openSettings: { [unowned self] in self.settingsCoordinator.showSettings(tab: .commands) })

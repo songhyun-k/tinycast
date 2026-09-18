@@ -15,8 +15,18 @@ struct GeneralSettingsView: View {
 
     /// The missing-permission half is its own row, so it can carry the button that fixes it.
     private var hyperSubtitle: String {
-        guard settings.hyperKey != .none else { return "Remap one key to \(hyperGlyphs) held together." }
-        return "\(settings.hyperKey.title) sends \(hyperGlyphs), shown as ✦ in shortcuts."
+        let language = settings.language
+        guard settings.hyperKey != .none else {
+            return String(
+                format: language.localized(
+                    "Select a physical key to remap to the %@ modifier keys simultaneously."),
+                hyperGlyphs)
+        }
+        return String(
+            format: language.localized(
+                "Pressing %1$@ will trigger the left %2$@ modifier keys."
+                    + " Hyper Key shortcuts are shown in Tinycast with ✦."),
+            language.localized(settings.hyperKey.title), hyperGlyphs)
     }
 
     var body: some View {
@@ -40,7 +50,7 @@ struct GeneralSettingsView: View {
                 }
                 Picker(selection: $settings.popToRootTimeout) {
                     ForEach(PopToRootTimeout.allCases) { timeout in
-                        Text(timeout.title).tag(timeout)
+                        Text(LocalizedStringKey(timeout.title)).tag(timeout)
                     }
                 } label: {
                     SettingsRowTitle(.generalGeneral, "Pop to Root Search")
@@ -48,7 +58,7 @@ struct GeneralSettingsView: View {
                 }
                 Picker(selection: $settings.escapeKeyBehavior) {
                     ForEach(EscapeKeyBehavior.allCases) { behavior in
-                        Text(behavior.title).tag(behavior)
+                        Text(LocalizedStringKey(behavior.title)).tag(behavior)
                     }
                 } label: {
                     SettingsRowTitle(.generalGeneral, "Escape Key Behavior")
@@ -73,10 +83,18 @@ struct GeneralSettingsView: View {
             Section {
                 Picker(selection: $settings.appearance) {
                     ForEach(AppAppearance.allCases) { appearance in
-                        Text(appearance.title).tag(appearance)
+                        Text(LocalizedStringKey(appearance.title)).tag(appearance)
                     }
                 } label: {
                     SettingsRowTitle(.generalAppearance, "Theme")
+                }
+                Picker(selection: $settings.language) {
+                    ForEach(AppLanguage.allCases) { language in
+                        Text(language.title).tag(language)
+                    }
+                } label: {
+                    SettingsRowTitle(.generalAppearance, "Language")
+                    Text("Match macOS, or pin Tinycast to one language.")
                 }
                 InterfaceSizeRow()
                 WindowModeRow()
@@ -99,7 +117,7 @@ struct GeneralSettingsView: View {
             Section {
                 Picker(selection: $settings.hyperKey) {
                     ForEach(HyperKeyPhysicalKey.allCases) { key in
-                        Text(key.title).tag(key)
+                        Text(LocalizedStringKey(key.title)).tag(key)
                     }
                 } label: {
                     SettingsRowTitle(.generalHyperKey, "Hyper Key")
@@ -132,7 +150,10 @@ struct GeneralSettingsView: View {
                         Text("Trigger Escape").tag(HyperKeyQuickPress.escape)
                     } label: {
                         SettingsRowTitle(.generalHyperKey, "Quick Press")
-                        Text("When \(settings.hyperKey.title) is pressed alone.")
+                        Text(String(
+                            format: settings.language.localized(
+                                "Select an action to perform when %@ is pressed without any other keys."),
+                            settings.language.localized(settings.hyperKey.title)))
                     }
                 }
 
@@ -166,7 +187,7 @@ struct GeneralSettingsView: View {
                 }
                 Picker(selection: $settings.rootSearchSensitivity) {
                     ForEach(SearchSensitivity.allCases) { sensitivity in
-                        Text(sensitivity.title).tag(sensitivity)
+                        Text(LocalizedStringKey(sensitivity.title)).tag(sensitivity)
                     }
                 } label: {
                     SettingsRowTitle(.generalSearch, "Search sensitivity")
@@ -244,7 +265,7 @@ private struct WindowModeRow: View {
                         RoundedRectangle(cornerRadius: Theme.Radius.barControl, style: .continuous)
                     )
                     .saturation(selected ? 1 : 0)
-                Text(title)
+                Text(LocalizedStringKey(title))
                     .font(.caption)
                     .fontWeight(selected ? .semibold : .regular)
                     .foregroundStyle(selected ? Color.primary : Color.secondary)
@@ -252,7 +273,7 @@ private struct WindowModeRow: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(WindowModeButtonStyle())
-        .accessibilityLabel(title)
+        .accessibilityLabel(settings.language.localized(title))
         .accessibilityAddTraits(selected ? [.isSelected] : [])
     }
 }

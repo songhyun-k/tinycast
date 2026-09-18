@@ -25,7 +25,7 @@ final class UpdateCoordinator {
     private unowned let core: AppCore
     @ObservationIgnored private lazy var window = AppWindowController(
         title: "Software Update", contentSize: UpdateWindowView.initialSize,
-        activation: core.activationPolicy)
+        activation: core.activationPolicy, settings: core.settings)
     @ObservationIgnored private var installTask: Task<Void, Never>?
 
     init(store: UpdateCheckStore, core: AppCore) {

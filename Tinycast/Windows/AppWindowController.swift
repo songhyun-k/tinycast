@@ -18,13 +18,14 @@ final class AppWindowController: NSObject, NSWindowDelegate {
     private let autosaveName: String?
     private let activation: ActivationPolicy
     private let closesOnEscape: Bool
+    private let settings: AppSettings
     private var window: NSWindow?
     /// Rebuilt with the window, so a chrome's state never outlives the window it decorated.
     private var chrome: WindowChrome?
 
     init(
         title: String, contentSize: CGSize, resizable: Bool = false, autosaveName: String? = nil,
-        activation: ActivationPolicy, closesOnEscape: Bool = false
+        activation: ActivationPolicy, settings: AppSettings, closesOnEscape: Bool = false
     ) {
         self.title = title
         self.contentSize = contentSize
@@ -32,6 +33,7 @@ final class AppWindowController: NSObject, NSWindowDelegate {
         self.autosaveName = autosaveName
         self.activation = activation
         self.closesOnEscape = closesOnEscape
+        self.settings = settings
     }
 
     /// Returns `true` when a window was built, `false` when an already-open one was re-raised.
@@ -39,7 +41,7 @@ final class AppWindowController: NSObject, NSWindowDelegate {
     func show<Content: View>(
         chrome: WindowChrome? = nil, @ViewBuilder content: () -> Content
     ) -> Bool {
-        let root = content()
+        let root = content().appLocale(settings)
         return show(chrome: chrome) {
             let hosting = NSHostingController(rootView: root)
             // Keep the window's size authoritative: an unconstrained fill would drive the frame.

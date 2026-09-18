@@ -11,7 +11,7 @@ final class OnboardingCoordinator {
         self.core = core
         window = AppWindowController(
             title: "Welcome to Tinycast", contentSize: OnboardingView.initialSize,
-            activation: core.activationPolicy)
+            activation: core.activationPolicy, settings: core.settings)
     }
 
     /// The window takes the height the current step measured, so no step is clipped or padded out.

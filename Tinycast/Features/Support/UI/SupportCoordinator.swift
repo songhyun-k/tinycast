@@ -12,7 +12,7 @@ final class SupportCoordinator {
     private unowned let core: AppCore
     private lazy var window = AppWindowController(
         title: "Support Tinycast", contentSize: SupportWindowView.initialSize,
-        activation: core.activationPolicy)
+        activation: core.activationPolicy, settings: core.settings)
 
     init(store: SupportReminderStore, core: AppCore) {
         self.store = store

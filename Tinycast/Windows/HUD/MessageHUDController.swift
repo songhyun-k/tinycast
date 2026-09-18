@@ -11,7 +11,7 @@ final class MessageHUDController {
         self.settings = settings
         presenter = HUDPresenter(
             anchor: .edgeInset(Theme.Size.hudEdgeOffset),
-            dwell: Theme.Duration.messageHUD,
+            dwell: Theme.Duration.messageHUD, settings: settings,
             screen: { settings.openOnCursorScreen ? .underCursor : .primary })
     }
 

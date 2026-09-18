@@ -12,7 +12,7 @@ struct SectionHeader: View {
 
     var body: some View {
         HStack(spacing: metrics.spacing.sm) {
-            Text(title)
+            Text(LocalizedStringKey(title))
                 .lineLimit(1)
             if let configure {
                 Button(action: configure) {
@@ -21,7 +21,7 @@ struct SectionHeader: View {
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .help(configureHelp)
+                .help(LocalizedStringKey(configureHelp))
             }
             Spacer(minLength: 0)
         }

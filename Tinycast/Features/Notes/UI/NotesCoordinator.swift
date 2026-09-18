@@ -11,7 +11,7 @@ final class NotesCoordinator {
     }
 
     private let store: NotesStore
-    private let settings: AppSettings
+    let settings: AppSettings
     private let appIndex: AppIndex
     private unowned let core: AppCore
     @ObservationIgnored private lazy var windowController = NotesWindowController(coordinator: self)

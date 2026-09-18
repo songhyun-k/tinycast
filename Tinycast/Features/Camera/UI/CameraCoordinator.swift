@@ -65,7 +65,7 @@ final class CameraCoordinator: NSObject, NSWindowDelegate {
     }
 
     private func present() {
-        let hosting = NSHostingView(rootView: CameraView(coordinator: self))
+        let hosting = NSHostingView(rootView: CameraView(coordinator: self).appLocale(core.settings))
         hosting.setFrameSize(hosting.fittingSize)
         let panel = CameraPanel(content: hosting)
         panel.delegate = self

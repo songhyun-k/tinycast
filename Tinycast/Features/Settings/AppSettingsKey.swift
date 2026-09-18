@@ -17,6 +17,7 @@ enum AppSettingsKey: String, CaseIterable {
     case escapeKeyBehavior = "escapeKeyBehavior"
     case appearance = "appearance"
     case calcNumberStyle = "calculatorNumberStyle"
+    case language = "language"
     case interfaceSize = "interfaceSize"
     case compactMode = "compactMode"
     case showFavoritesInCompactMode = "showFavoritesInCompactMode"

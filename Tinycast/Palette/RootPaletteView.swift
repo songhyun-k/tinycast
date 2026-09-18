@@ -810,7 +810,7 @@ struct RootPaletteView: View {
             .background(alignment: .leading) {
                 // An IME's marked text leaves `query` empty, so the placeholder would overlap it.
                 if vm.query.isEmpty, !vm.isComposing {
-                    Text(searchPrompt)
+                    Text(LocalizedStringKey(searchPrompt))
                         .font(metrics.typography.searchField)
                         .foregroundStyle(Theme.Colors.textTertiary)
                         .lineLimit(1)
@@ -819,7 +819,7 @@ struct RootPaletteView: View {
                 }
             }
             // The prompt used to carry this; without it the field would be unlabelled.
-            .accessibilityLabel(Text(searchPrompt))
+            .accessibilityLabel(Text(LocalizedStringKey(searchPrompt)))
             // Never branches on query — that tore down the field editor mid-keystroke once.
             .overlay {
                 if settings.paletteDraggable {
@@ -876,7 +876,7 @@ struct RootPaletteView: View {
         HStack(spacing: 2) {
             BarButton(action: activateSelection) {
                 HStack(spacing: metrics.spacing.sm) {
-                    Text(pillLabel)
+                    Text(LocalizedStringKey(pillLabel))
                         .font(metrics.typography.bar)
                         .foregroundStyle(pillTint)
                     if formPrimaryShortcut {

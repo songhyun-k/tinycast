@@ -22,18 +22,18 @@ struct SettingsRow<Icon: View, Trailing: View>: View {
                     if let anchor {
                         SettingsRowTitle(anchor, title)
                     } else {
-                        Text(title)
+                        Text(LocalizedStringKey(title))
                     }
                 }
                 .lineLimit(1)
                 if let subtitle {
-                    Text(subtitle)
+                    Text(LocalizedStringKey(subtitle))
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .lineLimit(subtitleLineLimit)
                         .fixedSize(horizontal: false, vertical: true)
                         .truncationMode(.middle)
-                        .help(subtitle)
+                        .help(LocalizedStringKey(subtitle))
                 }
             }
             Spacer(minLength: Theme.Spacing.lg)

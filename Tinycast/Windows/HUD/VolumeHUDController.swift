@@ -5,13 +5,14 @@ import SwiftUI
 @MainActor
 final class VolumeHUDController {
     private let settings: AppSettings
-    private let presenter = HUDPresenter(
-        anchor: .heightFraction(bottomFraction), dwell: Theme.Duration.volumeHUD,
-        screen: { .underCursor })
+    private let presenter: HUDPresenter
     private let state = VolumeState(level: 0)
 
     init(settings: AppSettings) {
         self.settings = settings
+        presenter = HUDPresenter(
+            anchor: .heightFraction(Self.bottomFraction), dwell: Theme.Duration.volumeHUD,
+            settings: settings, screen: { .underCursor })
     }
 
     func show(level: Float32, muted: Bool) {

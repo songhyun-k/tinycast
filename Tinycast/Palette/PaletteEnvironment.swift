@@ -13,6 +13,7 @@ extension View {
     /// Shared, so the ⌘K menu's own hosted hierarchy cannot drift from the palette's.
     func paletteEnvironment(_ core: AppCore) -> some View {
         self
+            .appLocale(core.settings)
             .modifier(InterfaceMetricsScope(settings: core.settings))
             .environment(core)
             .environment(core.settings)

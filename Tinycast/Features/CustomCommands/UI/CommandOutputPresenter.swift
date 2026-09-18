@@ -42,18 +42,21 @@ final class CommandOutputPresenter {
     private(set) var run: CommandRun?
 
     @ObservationIgnored private let activation: ActivationPolicy
+    @ObservationIgnored private let settings: AppSettings
     @ObservationIgnored private let rerun: (UUID) -> Void
     @ObservationIgnored private let stop: (UUID) -> Void
     @ObservationIgnored private let openSettings: () -> Void
     @ObservationIgnored private lazy var window = AppWindowController(
         title: "Command Output", contentSize: CommandOutputView.initialSize, resizable: true,
-        autosaveName: "CommandOutputWindow", activation: activation, closesOnEscape: true)
+        autosaveName: "CommandOutputWindow", activation: activation, settings: settings,
+        closesOnEscape: true)
 
     init(
-        activation: ActivationPolicy, rerun: @escaping (UUID) -> Void,
+        activation: ActivationPolicy, settings: AppSettings, rerun: @escaping (UUID) -> Void,
         stop: @escaping (UUID) -> Void, openSettings: @escaping () -> Void
     ) {
         self.activation = activation
+        self.settings = settings
         self.rerun = rerun
         self.stop = stop
         self.openSettings = openSettings
