@@ -30,6 +30,14 @@ git switch -C upstream-sync main
 git rebase upstream/main            # resolve, then build and test here
 ```
 
+If `fetch` reports a forced update, the old and new upstream histories may share an ancient base.
+Find the old upstream tip that `main` was built on (`git reflog show upstream/main` and
+`git log --oneline main`), then replay only the fork commits after it:
+
+```sh
+git rebase --onto upstream/main <old-upstream-tip> upstream-sync
+```
+
 Green — move `main` over. `merge --ff-only` cannot do this: the rebase rewrote history, so `main` is
 no longer an ancestor.
 
@@ -52,7 +60,7 @@ drops the duplicate.
 
 ```sh
 ./Scripts/run-tests.sh
-./Scripts/build-dmg.sh 0.11.4       # any version above the newest upstream tag
+./Scripts/build-dmg.sh 0.12.0       # choose a version above the newest upstream tag
 cp -R build/DerivedData/Build/Products/Release/Tinycast.app /Applications/
 ```
 
@@ -69,7 +77,5 @@ cp -R build/DerivedData/Build/Products/Release/Tinycast.app /Applications/
   check off and re-sync instead.
 - **Release builds keep the `com.tinycast.app` bundle id**, so `brew install --cask tinycast` would
   overwrite this copy. Debug is a separate channel (`Tinycast Dev.app`) and never collides.
-- **`ext-test` fails on upstream too.** Compare a suite run against `upstream/main` before blaming a
-  local change.
 - **This file and its two links are fork-only**, so they conflict whenever upstream edits the doc
   tables. `rerere` resolves it after the first time.
