@@ -143,8 +143,10 @@ private struct ClipboardRow: View {
     }
 
     var body: some View {
-        HStack(spacing: metrics.spacing.lg) {
+        IconCache.observeStyle()
+        return HStack(spacing: metrics.spacing.lg) {
             thumbnail(item.colorValue)
+                .frame(width: metrics.size.resultRowIcon, height: metrics.size.resultRowIcon)
             Text(previewText)
                 .font(metrics.typography.menuRow)
                 .lineLimit(1)
@@ -187,31 +189,31 @@ private struct ClipboardRow: View {
             // A colour states itself, so it takes the tile a glyph would otherwise fill.
             if let color {
                 ColorSwatch(color: color)
-                    .frame(width: metrics.size.rowIcon, height: metrics.size.rowIcon)
+                    .frame(width: artworkSize, height: artworkSize)
             } else {
-                glyphTile("doc.text")
+                Image(nsImage: IconCache.symbolIcon(named: "doc.text")).resizable()
             }
         case .image:
             AsyncThumbnail(url: imageURL, maxPixel: 64) { image in
                 image
                     .resizable()
                     .scaledToFill()
-                    .frame(width: metrics.size.rowIcon, height: metrics.size.rowIcon)
+                    .frame(width: artworkSize, height: artworkSize)
                     .clipShape(
                         RoundedRectangle(cornerRadius: metrics.radius.thumbnail, style: .continuous))
             } placeholder: {
-                glyphTile("photo")
+                Image(nsImage: IconCache.symbolIcon(named: "photo")).resizable()
             }
         case .file:
             AsyncThumbnail(url: fileURL, maxPixel: 64, source: .file) { image in
                 image
                     .resizable()
                     .scaledToFill()
-                    .frame(width: metrics.size.rowIcon, height: metrics.size.rowIcon)
+                    .frame(width: artworkSize, height: artworkSize)
                     .clipShape(
                         RoundedRectangle(cornerRadius: metrics.radius.thumbnail, style: .continuous))
             } placeholder: {
-                glyphTile(fileKind.systemImage)
+                Image(nsImage: IconCache.symbolIcon(named: fileKind.systemImage)).resizable()
             }
         }
     }
@@ -225,45 +227,35 @@ private struct ClipboardRow: View {
         item.filePath.map { ClipboardFileKind.of(path: $0) } ?? .other
     }
 
-    /// A symbol on a rounded tile, sized so text and image rows share one shape.
-    private func glyphTile(_ systemName: String) -> some View {
-        RoundedRectangle(cornerRadius: metrics.radius.thumbnail, style: .continuous)
-            .fill(Theme.Colors.controlSurface)
-            .frame(width: metrics.size.rowIcon, height: metrics.size.rowIcon)
-            .overlay(
-                Image(systemName: systemName)
-                    .font(.system(size: 12))
-                    .symbolRenderingMode(.hierarchical)
-                    .foregroundStyle(.secondary)
-            )
+    private var artworkSize: CGFloat { metrics.size.resultRowIcon * IconCache.appIconExtent }
+}
+
+/// ImageIO for a blob we hold; QuickLook for a referenced file, which may be any type.
+private enum ThumbnailSource {
+    case image
+    case file
+
+    func cached(_ url: URL, maxPixel: CGFloat) -> NSImage? {
+        switch self {
+        case .image: return ImageThumbnail.cached(url, maxPixel: maxPixel)
+        case .file: return FilePreviewThumbnail.cached(url, maxPixel: maxPixel)
+        }
+    }
+
+    func loadAsync(_ url: URL, maxPixel: CGFloat) async -> NSImage? {
+        switch self {
+        case .image: return await ImageThumbnail.loadAsync(url, maxPixel: maxPixel)
+        case .file: return await FilePreviewThumbnail.loadAsync(url, maxPixel: maxPixel)
+        }
     }
 }
 
 /// A downsampled thumbnail, decoding misses off the main thread.
 private struct AsyncThumbnail<Content: View, Placeholder: View>: View {
-    /// ImageIO for a blob we hold; QuickLook for a referenced file, which may be any type.
-    enum Source {
-        case image
-        case file
-
-        func cached(_ url: URL, maxPixel: CGFloat) -> NSImage? {
-            switch self {
-            case .image: return ImageThumbnail.cached(url, maxPixel: maxPixel)
-            case .file: return FilePreviewThumbnail.cached(url, maxPixel: maxPixel)
-            }
-        }
-
-        func loadAsync(_ url: URL, maxPixel: CGFloat) async -> NSImage? {
-            switch self {
-            case .image: return await ImageThumbnail.loadAsync(url, maxPixel: maxPixel)
-            case .file: return await FilePreviewThumbnail.loadAsync(url, maxPixel: maxPixel)
-            }
-        }
-    }
-
     let url: URL?
     let maxPixel: CGFloat
-    var source: Source = .image
+    /// Not nested here: the off-main decode would carry this view's isolated `View` conformances.
+    var source: ThumbnailSource = .image
     @ViewBuilder let content: (Image) -> Content
     @ViewBuilder let placeholder: () -> Placeholder
 

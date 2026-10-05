@@ -71,6 +71,13 @@ final class ExtensionCoordinator {
         guard settings.extensionsEnabled,
             let entry = extensions.launcherEntry(forEntryID: entryID)
         else { return }
+        // The shortcut's second press closes its command, as a mode command's does.
+        if paletteCoordinator.isShowing(.extensionCommand),
+            extensions.running == ExtensionCommandRef(entryID: entryID)
+        {
+            paletteCoordinator.hidePalette()
+            return
+        }
         runExtensionCommand(entry)
     }
 
@@ -227,9 +234,8 @@ final class ExtensionCoordinator {
 
     func showExtensionSettings(for owner: InstalledExtension) {
         paletteCoordinator.hidePalette(restoreFocus: false)
-        settingsCoordinator.showSettings(tab: .extensions)
-        NotificationCenter.default.post(
-            name: .tinycastSelectExtension, object: owner.manifest.name)
+        settingsCoordinator.showSettings(
+            tab: .extensions, revealing: .row(.extensionsInstalled, owner.manifest.name))
     }
 
     // MARK: - Host callbacks, routed here so the manager never touches a window itself
@@ -275,9 +281,4 @@ final class ExtensionCoordinator {
             confirmRole: alert.isDestructive ? .destructive : .standard,
             dismissTitle: alert.dismissTitle)
     }
-}
-
-extension Notification.Name {
-    /// Carries an extension's name so the Settings pane can select it once shown.
-    static let tinycastSelectExtension = Notification.Name("tinycastSelectExtension")
 }
