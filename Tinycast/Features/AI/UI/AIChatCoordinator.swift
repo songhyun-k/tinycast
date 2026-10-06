@@ -82,6 +82,7 @@ final class AIChatCoordinator {
     /// The window's views read these through the coordinator, never through `AppCore`.
     var history: ChatHistoryStore { core.chatHistory }
     var aiSettings: AISettingsStore { core.aiSettings }
+    var dictation: DictationCoordinator { core.dictationCoordinator }
 
     func focusExisting() -> Bool {
         window.focus()
@@ -351,6 +352,10 @@ final class AIChatCoordinator {
 
     func showMCPSettings() {
         settingsCoordinator.showSettings(tab: .ai)
+    }
+
+    func showDictationSettings() {
+        settingsCoordinator.showSettings(tab: .dictation)
     }
 
     /// The server a draft is addressed to, so the composer can show it as a chip while typing.
