@@ -120,7 +120,7 @@ If a change touches anything in the right column, the harness on the left is man
 | `custom-command-test` | `CustomCommands/Model/CustomCommand.swift`, `Service/ShellCommandRunner.swift` |
 | `uninstall-test` | all five pure files in `Uninstall/Model/` |
 | `quicklink-test` | all of `Quicklinks/Model/` |
-| `quicklink-coordinator-test` | Quicklink opening and inline argument focus — missing selection, manual input, clipboard fallback and default-app overrides; no platform effects |
+| `quicklink-coordinator-test` | Quicklink opening and requested argument field — missing selection, manual input, clipboard fallback and default-app overrides; no platform effects or on-screen focus checks |
 | `apple-shortcut-test` | all of `AppleShortcuts/Model/` — the `shortcuts list` parser and entry ids |
 | `snippets-test` | all of `Snippets/Model/` and `Snippets/Service/`, plus `Platform/HealthTicker.swift` |
 | `notes-test` | all of `Notes/Model/` and `Notes/Service/`, including the Markdown parser, edit plans and reveal policy, plus the real fuzzy matcher and signposts |
@@ -467,6 +467,11 @@ caches, TCC grants and login item, so this cannot disturb an installed copy.
 
 - A quicklink opens its destination; `{argument}` prompts in order and Backspace steps back
 - `{selection}` falls back per the Settings choice
+- With "Ask for it" and no selection, a quicklink's hotkey focuses "Selected Text": typing fills that
+  field and Return opens the link. Check the first palette opening after launch, reopening, and an
+  already-open palette; repeat with a required `{argument}` and confirm the first missing field wins
+- Opening Search Quicklinks normally focuses search; a readable selection and clipboard fallback open
+  directly. Custom-command argument prompts still focus their first missing field
 - Pin, duplicate, delete and Open with Default all behave; import and export round-trip
 - Display order is pinned first by pin time, then by name
 
@@ -683,6 +688,9 @@ caches, TCC grants and login item, so this cannot disturb an installed copy.
 ### System actions and window management
 
 - A confirmation-gated action (Restart, Quit All) confirms, showing the subject's own glyph
+- Restart and Shut Down follow "Reopen windows when logging back in": after logging back in,
+  apps and windows reopen with it on and stay closed with it off. Check both actions and settings
+  from the launcher and a global hotkey
 - Empty Trash confirms while Finder's "Show warning before emptying the Trash" is on, and runs
   without a dialog once it is off
 - Volume actions show the volume HUD; everything else shows the message pill
@@ -705,6 +713,10 @@ caches, TCC grants and login item, so this cannot disturb an installed copy.
 
 ### Extensions
 
+- Open `raycast://extensions/linear/linear?source=webstore` from a browser: Settings → Extensions
+  offers the exact Store listing with Install (or Reinstall). Close it without installing, then open
+  a different Store link and verify its listing replaces the first. Repeat with extensions disabled:
+  Settings opens without looking up, installing or running anything; enabling still asks for consent.
 - Open a view-command deeplink with `fallbackText=beta`, with the palette hidden and already open:
   the field shows `beta`; a locally filtered List/Grid shows matching rows, and a command using
   `onSearchTextChange` receives the query when it mounts. Repeat without fallback text: the field
